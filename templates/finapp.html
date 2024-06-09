@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask App with Auto-Hide Hover Menu, Improved Submenus, and Background Image</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url('{{ url_for('static', filename='background.jpg') }}') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .menu {
+            background-color: rgba(51, 51, 51, 0.8); /* Semi-transparent background */
+            padding: 10px;
+            border-radius: 8px;
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: top 0.3s ease;
+        }
+
+        .menu ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+        }
+
+        .menu-item {
+            position: relative;
+            margin-right: 20px;
+        }
+
+        .menu-item a {
+            text-decoration: none;
+            color: white;
+            padding: 10px 20px;
+            display: block;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .menu-item a:hover {
+            background-color: #555;
+        }
+
+        .submenu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: rgba(51, 51, 51, 0.9);
+            border-radius: 4px;
+            padding: 0;
+            list-style-type: none;
+            margin: 0;
+            width: 150px;
+            z-index: 1;
+        }
+
+        .submenu-item a {
+            padding: 10px 20px;
+            display: block;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+
+        .submenu-item a:hover {
+            background-color: #555;
+        }
+
+        .menu-item:hover .submenu {
+            display: block;
+        }
+
+        /* Initially hide the menu */
+        .menu-hidden {
+            top: -100px; /* Adjust this value based on your menu height */
+        }
+
+        /* Hover area at the top to show the menu */
+        .hover-area {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 30px; /* Adjust this height as needed */
+        }
+    </style>
+</head>
+<body>
+    <div class="hover-area"></div>
+    <div class="menu menu-hidden" id="menu">
+        <ul>
+            <li class="menu-item">
+                <a href="/show_budget">Budget</a>
+            </li>
+            <li class="menu-item">
+                <a href="#">Entry</a>
+            </li>
+            <li class="menu-item">
+                <a href="#">Accounts</a>
+            </li>
+        </ul>
+    </div>
+    <script>
+        document.querySelector('.hover-area').addEventListener('mouseenter', function() {
+            document.getElementById('menu').classList.remove('menu-hidden');
+        });
+
+        document.querySelector('.hover-area').addEventListener('mouseleave', function() {
+            document.getElementById('menu').classList.add('menu-hidden');
+        });
+
+        document.querySelector('.menu').addEventListener('mouseenter', function() {
+            document.getElementById('menu').classList.remove('menu-hidden');
+        });
+
+        document.querySelector('.menu').addEventListener('mouseleave', function() {
+            document.getElementById('menu').classList.add('menu-hidden');
+        });
+    </script>
+</body>
+</html>

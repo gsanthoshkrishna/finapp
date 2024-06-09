@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Transaction</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datepicker/1.0.10/datepicker.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        form {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 10px;
+        }
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 15px 20px;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Add Transaction</h1>
+        <form id="transactionForm" action="/add_transaction" method="post">
+            <label for="tr_date">Date:</label>
+            <input type="date" id="tr_date" name="tr_date" value="{{ today_date }}" required><br>
+            
+            <label for="account">Account:</label>
+            <input type="text" id="account" name="account" required><br>
+            
+            <label for="remarks">Remarks:</label>
+            <input type="text" id="remarks" name="remarks"><br>
+            
+            <label for="tr_type">Transaction Type:</label>
+            <select id="tr_type" name="tr_type" required>
+                <option value="">Select Type</option>
+                <option value="CR">Credit</option>
+                <option value="DR">Debit</option>
+            </select><br>
+            
+            <input type="submit" value="Add Transaction">
+        </form>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/datepicker/1.0.10/datepicker.min.js"></script>
+    <script>
+        // Initialize date picker
+        const datepicker = new Datepicker(document.getElementById('tr_date'), {
+            format: 'yyyy-mm-dd',
+            autohide: true
+        });
+        datepicker.show();
+    </script>
+</body>
+</html>

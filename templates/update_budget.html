@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Budget Table</title>
+    <style>
+        .plus-button {
+            font-size: 16px;
+            padding: 10px 20px;
+            background-color: #4CAF50; /* Green */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .plus-button:hover {
+            background-color: #45a049; /* Darker green */
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+            text-align: left;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #ddd;
+        }
+
+        td[contenteditable="true"] {
+            background-color: #ffffff;
+        }
+
+        /* This is for pop of accounts list */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <form id="budgetForm" onsubmit="updateBudget()" method="post">
+    <label for="month">Select Month:</label>
+        <select id="select-month" name="month" onchange="updateSelectedItem()" required>
+            <option value="Select">Select</option>
+            <option value="January">January</option>
+            <option value="February">February</option>
+            <option value="March">March</option>
+            <option value="April">April</option>
+            <option value="May">May</option>
+            <option value="June">June</option>
+            <option value="July">July</option>
+            <option value="August">August</option>
+            <option value="September">September</option>
+            <option value="October">October</option>
+            <option value="November">November</option>
+            <option value="December">December</option>
+            <!-- Add more options for other months -->
+        </select>
+    <h1>Budget Table</h1>
+    
+        <table id="budgetTable">
+            <thead>
+                <tr>
+                    <th>Month</th>
+                    <th>Name</th>
+                    <th>Estimated Amount</th>
+                </tr>
+            </thead>
+            <tbody>                
+            </tbody>
+        </table>        
+        <input type="submit" value="Update Table">
+    </form>
+    <button class="plus-button" onclick="showModal()">+</button>
+    <div id="studentModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <label for="accountSelect">Select Student:</label>
+            <select id="accountSelect">
+                <!-- Options will be populated dynamically -->
+            </select>
+            <button onclick="addNewRow()">OK</button>
+        </div>
+    </div>
+    <script>
+        function showModal() {
+            fetch('/accounts', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'Fetch'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const select = document.getElementById('accountSelect');
+                    select.innerHTML = '';
+                    data.forEach(name => {
+                        const option = document.createElement('option');
+                        option.value = name;
+                        option.textContent = name;
+                        select.appendChild(option);
+                    });
+                    document.getElementById('studentModal').style.display = "block";
+                });
+        }
+
+        function closeModal() {
+            document.getElementById('studentModal').style.display = "none";
+        }
+
+        function updateSelectedItem() {
+            var selectedItem = document.getElementById('select-month').value;
+            var xhr = new XMLHttpRequest();
+            var url = '/show_budget?selected_month=' + encodeURIComponent(selectedItem);
+            xhr.open('GET', url, true);
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    console.log(xhr.responseText);
+                    var data = JSON.parse(xhr.responseText);
+                    var tbody = document.querySelector('#budgetTable tbody');
+                    tbody.innerHTML = '';  // Clear existing rows
+
+                    data.forEach(function (row) {
+                        var tr = document.createElement('tr');
+                        var tdMonth = document.createElement('td');
+                        var tdName = document.createElement('td');
+                        var tdAmount = document.createElement('td');
+                        var tdDelete = document.createElement('td');
+
+                        tdMonth.textContent = row[0];
+                        tdName.textContent = row[1];
+                        tdAmount.textContent = row[2];
+                        tdAmount.contentEditable = true;
+
+                        // Create delete button
+                        var deleteButton = document.createElement('button');
+                        deleteButton.textContent = 'Delete';
+                        deleteButton.onclick = function () {
+                            // Delete the row when delete button is clicked
+                            tbody.removeChild(tr);
+                        };
+
+                        tdDelete.appendChild(deleteButton); // Append delete button to tdDelete
+                        tr.appendChild(tdMonth);
+                        tr.appendChild(tdName);
+                        tr.appendChild(tdAmount);
+                        tr.appendChild(tdDelete); // Append tdDelete with delete button to the row
+                        tbody.appendChild(tr);
+                    });
+                }
+            };
+            xhr.send();
+        }
+        function addNewRow(){
+            var selectedMonth = document.getElementById('select-month').value;
+            const selectedAccount = document.getElementById('accountSelect').value;            
+            var tbody = document.querySelector('#budgetTable tbody');
+            var tr = document.createElement('tr');
+            var tdMonth = document.createElement('td');
+            var tdName = document.createElement('td');
+            var tdAmount = document.createElement('td');            
+            tdMonth.textContent = selectedMonth;
+            tdName.textContent = selectedAccount;
+            tdAmount.textContent = 0;
+            tdAmount.contentEditable = true;
+            tr.appendChild(tdMonth);
+            tr.appendChild(tdName);
+            tr.appendChild(tdAmount);
+            tbody.appendChild(tr);
+
+        }
+        function updateBudget(){
+            var table = document.getElementById('budgetTable');
+
+            // Create a FormData object to store form data
+            var formData = new FormData();
+            // Iterate over each row in the table
+            for (var i = 1; i < table.rows.length; i++) {
+                // Get the values from the table cells
+                var month = table.rows[i].cells[0].textContent;
+                var name = table.rows[i].cells[1].textContent;
+                var estimatedAmount = table.rows[i].cells[2].textContent;
+
+                // Append the values to the FormData object
+                formData.append('month[]', month);
+                formData.append('name[]', name);
+                formData.append('estimated_amount[]', estimatedAmount);
+            }
+
+            // Send an AJAX request to update the budget table
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/update_budget');
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    console.log(xhr.responseText);
+                }
+            };
+            xhr.send(formData);
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+                updateSelectedItem();
+                addNewRow();
+        });
+    </script>
+</body>
+</html>

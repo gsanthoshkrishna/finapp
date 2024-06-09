@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dropdown Menu with Depth of 2</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url('{{ url_for('static', filename='background.jpg') }}') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .menu {
+            background-color: rgba(51, 51, 51, 0.8); /* Semi-transparent background */
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .menu ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+        }
+
+        .menu-item {
+            position: relative;
+            margin-right: 20px;
+        }
+
+        .menu-item a {
+            text-decoration: none;
+            color: white;
+            padding: 10px 20px;
+            display: block;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .menu-item a:hover {
+            background-color: #555;
+        }
+
+        .submenu, .sub-submenu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: rgba(51, 51, 51, 0.9);
+            border-radius: 4px;
+            padding: 0;
+            list-style-type: none;
+            margin: 0;
+            width: 150px;
+            z-index: 1;
+        }
+
+        .submenu-item, .sub-submenu-item {
+            position: relative;
+        }
+
+        .submenu-item a, .sub-submenu-item a {
+            padding: 10px 20px;
+            display: block;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+
+        .submenu-item a:hover, .sub-submenu-item a:hover {
+            background-color: #555;
+        }
+
+        .menu-item:hover .submenu {
+            display: block;
+        }
+
+        .submenu-item:hover .sub-submenu {
+            display: block;
+            top: 0;
+            left: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="menu">
+        <ul>
+            <li class="menu-item">
+                <a href="#">Budget</a>
+                <ul class="submenu">
+                    <li class="submenu-item">
+                        <a href="#">Submenu Item 1</a>
+                        <ul class="sub-submenu">
+                            <li class="sub-submenu-item"><a href="#">Sub-submenu Item 1</a></li>
+                            <li class="sub-submenu-item"><a href="#">Sub-submenu Item 2</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li class="menu-item">
+                <a href="#">Entry</a>
+                <ul class="submenu">
+                    <li class="submenu-item">
+                        <a href="#">Submenu Item 2</a>
+                        <ul class="sub-submenu">
+                            <li class="sub-submenu-item"><a href="#">Sub-submenu Item 1</a></li>
+                            <li class="sub-submenu-item"><a href="#">Sub-submenu Item 2</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li class="menu-item">
+                <a href="#">Accounts</a>
+                <ul class="submenu">
+                    <li class="submenu-item">
+                        <a href="#">Submenu Item 3</a>
+                        <ul class="sub-submenu">
+                            <li class="sub-submenu-item"><a href="#">Sub-submenu Item 1</a></li>
+                            <li class="sub-submenu-item"><a href="#">Sub-submenu Item 2</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</body>
+</html>
