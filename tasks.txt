@@ -1,1 +1,10 @@
-In Budget for a month to add a row.
+In Budget for a month to add a row. - done
+restrict duplicates.
+add sort options in the tables wherever required
+add total in budget.
+In each row add a column to provide whats the source for the amount(eg: credit card, salary, loan, etc.)
+Add the amounts that need to come in (eg: amount returned that are given as lending to someone)
+
+In Transaction
+===============
+add how much completed how much left and surplus/deficit

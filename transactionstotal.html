@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Table</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .editable {
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        .total-box {
+            font-size: 24px;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 5px;
+            background: #f4f4f4;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Transaction Table</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Transaction</th>
+            <th>Amount ($)</th>
+        </tr>
+    </thead>
+    <tbody id="transaction-table">
+        <tr>
+            <td>Transaction 1</td>
+            <td contenteditable="true" class="editable">100.00</td>
+        </tr>
+        <tr>
+            <td>Transaction 2</td>
+            <td contenteditable="true" class="editable">200.00</td>
+        </tr>
+        <tr>
+            <td>Transaction 3</td>
+            <td contenteditable="true" class="editable">300.00</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="total-box">
+    Total Amount: $<span id="total-amount">0.00</span>
+</div>
+
+<script>
+    function updateTotal() {
+        const amounts = document.querySelectorAll('.editable');
+        let total = 0;
+        amounts.forEach(td => {
+            let value = parseFloat(td.innerText) || 0;
+            total += value;
+        });
+        document.getElementById('total-amount').innerText = total.toFixed(2);
+    }
+
+    document.querySelectorAll('.editable').forEach(td => {
+        td.addEventListener('input', updateTotal);
+    });
+
+    // Initial calculation
+    updateTotal();
+</script>
+
+</body>
+</html>

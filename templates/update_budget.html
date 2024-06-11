@@ -3,6 +3,19 @@
 <head>
     <title>Budget Table</title>
     <style>
+        .amount-box {
+            display: inline-block;
+            padding: 20px 30px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #ff7e5f, #feb47b);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            min-width: 200px;
+            margin: 10px;
+        }
         .plus-button {
             font-size: 16px;
             padding: 10px 20px;
@@ -26,7 +39,7 @@
         }
 
         table {
-            width: 100%;
+            width: 50%;
             border-collapse: collapse;
             margin-bottom: 20px;
         }
@@ -49,9 +62,15 @@
         tr:hover {
             background-color: #ddd;
         }
+        
 
         td[contenteditable="true"] {
             background-color: #ffffff;
+        }
+
+        .editable {
+            padding: 8px;
+            box-sizing: border-box;
         }
 
         /* This is for pop of accounts list */
@@ -123,6 +142,9 @@
         <input type="submit" value="Update Table">
     </form>
     <button class="plus-button" onclick="showModal()">+</button>
+    <div class="total-box">
+        Total Amount: Rs.<span id="total-amount">0.00</span>
+    </div>
     <div id="studentModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>
@@ -134,6 +156,17 @@
         </div>
     </div>
     <script>
+        function updateTotal() {
+            console.log("updating total ")
+            const amounts = document.querySelectorAll('.editable');
+            let total = 0;
+            amounts.forEach(td => {
+                let value = parseFloat(td.innerText) || 0;
+                total += value;
+            });
+            document.getElementById('total-amount').innerText = total.toFixed(2);
+            console.log(total.toFixed(2))
+        }
         function showModal() {
             fetch('/accounts', {
                 method: 'GET',
@@ -183,6 +216,9 @@
                         tdName.textContent = row[1];
                         tdAmount.textContent = row[2];
                         tdAmount.contentEditable = true;
+                        tdAmount.className = "editable"
+
+                        tdAmount.addEventListener('input', updateTotal());
 
                         // Create delete button
                         var deleteButton = document.createElement('button');

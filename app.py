@@ -54,6 +54,34 @@ def create_budget():
 
 
     return "Budget created successfully!"
+@app.route('/add_transaction', methods=['POST'])
+def create_budget():
+    selected_month = request.form.get('month')  # Get the selected month from the form
+    selected_accounts = request.form.getlist('selected_accounts[]')  # Get the selected accounts from the form
+    # Now you can do whatever you want with the selected month and accounts
+    # For example, you can insert them into a MySQL table
+
+    # Print the selected month and accounts for demonstration
+    print("Selected Month:", selected_month)
+    print("Selected Accounts:", selected_accounts)
+
+    # Add your database insertion logic here
+    data_to_insert = [(selected_month, account) for account in selected_accounts]
+
+    # Insert data into the budget table
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor()
+    print("creating new budget")
+    print(data_to_insert)
+
+    cursor.executemany("INSERT INTO budget (month, name,status) VALUES (%s, %s, 'new')", data_to_insert)
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+
+    return "Budget created successfully!"
 
 @app.route('/show_budget')
 def show_budget():
