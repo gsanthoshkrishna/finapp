@@ -5,6 +5,18 @@ add total in budget.
 In each row add a column to provide whats the source for the amount(eg: credit card, salary, loan, etc.)
 Add the amounts that need to come in (eg: amount returned that are given as lending to someone)
 
+In budget add column to show how much spent and also the difference. right side add graphs for showing Total Budget, Spent, Remaining.
 In Transaction
 ===============
+get the list of accounts added for that month budget only instead of all accounts. - done
 add how much completed how much left and surplus/deficit
+date year is hardcoded in app.py for add_transaction. later change it. this is hardcoded as we are showing MMM-dd format in frontend
+
+in http://127.0.0.1:5001/load_transactions
+right side add graphs for showing Total Budget, Spent, Remaining.
+
+
+#TODO
+select b.month, b.name , t.amount as spent from budget b, ( select account, sum(amount) as amount from transaction where month(tr_date)  = 6 group by account) as t where b.status='new' and t.account = b.name and b.month = 'June';
+Use above query and generate the spent on the month and put it in budget column.
+

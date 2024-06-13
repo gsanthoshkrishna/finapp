@@ -54,34 +54,45 @@ def create_budget():
 
 
     return "Budget created successfully!"
-@app.route('/add_transaction', methods=['POST'])
-def create_budget():
-    selected_month = request.form.get('month')  # Get the selected month from the form
-    selected_accounts = request.form.getlist('selected_accounts[]')  # Get the selected accounts from the form
-    # Now you can do whatever you want with the selected month and accounts
-    # For example, you can insert them into a MySQL table
 
-    # Print the selected month and accounts for demonstration
-    print("Selected Month:", selected_month)
-    print("Selected Accounts:", selected_accounts)
+
+@app.route('/add_transaction', methods=['POST'])
+def add_transaction():
+    dateCol = json.loads(request.form.get('dateCol'))  
+    accountCol = json.loads(request.form.get('accountCol'))
+    amountCol = json.loads(request.form.get('amountCol'))
+    trTypeCol = json.loads(request.form.get('trTypeCol'))
+    remarkCol = json.loads(request.form.get('remarkCol'))
+
+    print(dateCol)
+    print(accountCol)
+    print(amountCol)
+    print(trTypeCol)
+    print(remarkCol)
+    values = []
+    print(len(dateCol))
+    for i in range(len(dateCol)):
+        date_obj = datetime.datetime.strptime(dateCol[i], "%b-%d")
+        mysql_date_str = date_obj.strftime("2024-%m-%d")
+        values.append((mysql_date_str, accountCol[i], amountCol[i], trTypeCol[i], remarkCol[i]))
 
     # Add your database insertion logic here
-    data_to_insert = [(selected_month, account) for account in selected_accounts]
+    print("---------------Inserting new Transaction(s)----------------")
+    print(values)
+       
 
     # Insert data into the budget table
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
-    print("creating new budget")
-    print(data_to_insert)
-
-    cursor.executemany("INSERT INTO budget (month, name,status) VALUES (%s, %s, 'new')", data_to_insert)
+    print("Adding new transaction")
+    cursor.executemany("INSERT INTO transaction (tr_date, account, amount, tr_type, remarks) VALUES (%s, %s, %s, %s, %s)", values)
 
     conn.commit()
     cursor.close()
     conn.close()
 
 
-    return "Budget created successfully!"
+    return "Transaction added successfully!"
 
 @app.route('/show_budget')
 def show_budget():
@@ -108,7 +119,7 @@ def show_budget():
         return render_template('update_budget.html', budget=accounts)
     
 
-#TODO working on below code.
+
 @app.route('/update_budget', methods=['POST','GET'])
 def update_budget():
     updated_budget = request.form.to_dict(flat=False)
@@ -151,8 +162,14 @@ def show_accounts():
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
 
+    selected_month = request.args.get('selected_month')
+    print(len(selected_month))
+    qry = "SELECT name FROM account order by name"
+    if len(selected_month) > 0:
+        qry = "SELECT distinct name FROM budget where month = '"+selected_month+ "' and status = 'new' and id > 225 order by name"
     # Execute query
-    cursor.execute("SELECT name FROM account order by name")
+    print(qry)
+    cursor.execute(qry)
     accounts = cursor.fetchall()
 
     # Close connection
@@ -189,6 +206,47 @@ def add_account():
     conn.close()
 
     return redirect(url_for('show_accounts'))
+
+def get_transactions(month):
+    # Retrieve records from the database for the specified month
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor()
+    print("SELECT * FROM transaction WHERE MONTH(tr_date) = %s", (month,))
+    cursor.execute("SELECT * FROM transaction WHERE MONTH(tr_date) = %s", (month,))
+    transactions = cursor.fetchall()
+
+    # Close cursor
+    cursor.close()
+
+    return transactions
+
+@app.route('/load_transactions')
+def load_transactions():
+    # Retrieve page number from query parameters, default to 1
+    selected_month = int(request.args.get('month', datetime.date.today().month))
+
+    # Retrieve transactions for the selected month
+    transactions = get_transactions(selected_month)
+
+    return render_template('load_transaction.html', transactions=transactions, selected_month=selected_month)
+
+@app.route('/get_account_wise_monthly_amount')
+def get_account_wise_monthly_amount():
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        selected_month = int(request.args.get('month', datetime.date.today().month))
+        print("SELECT * FROM transaction WHERE MONTH(tr_date) = %s", (month,))
+        cursor.execute("SELECT * FROM transaction WHERE MONTH(tr_date) = %s", (month,))
+        amounts = cursor.fetchall()
+
+        # Close cursor
+        cursor.close()
+
+        return amounts
+    except Exception as e:
+        print("Exception while getting monthwise costs")
+        print(e)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)

@@ -2,8 +2,52 @@
 <html>
 <head>
     <title>Add Transaction</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datepicker/1.0.10/datepicker.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/load-tr.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/datepicker.css') }}">
     <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .plus-button {
+            font-size: 16px;
+            padding: 10px 20px;
+            background-color: #4CAF50; /* Green */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .plus-button:hover {
+            background-color: #45a049; /* Darker green */
+        }
         body {
             font-family: Arial, sans-serif;
         }
@@ -42,35 +86,212 @@
         input[type="submit"]:hover {
             background-color: #45a049;
         }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        table {
+            width: 90%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+            text-align: left;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #ddd;
+        }
+        
+
+        td[contenteditable="true"] {
+            background-color: #ffffff;
+        }
+
+        .editable {
+            padding: 8px;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container" id="transContainer">
         <h1>Add Transaction</h1>
-        <form id="transactionForm" action="/add_transaction" method="post">
-            <label for="tr_date">Date:</label>
-            <input type="date" id="tr_date" name="tr_date" value="{{ today_date }}" required><br>
-            
-            <label for="account">Account:</label>
-            <input type="text" id="account" name="account" required><br>
-            
-            <label for="remarks">Remarks:</label>
-            <input type="text" id="remarks" name="remarks"><br>
-            
-            <label for="tr_type">Transaction Type:</label>
-            <select id="tr_type" name="tr_type" required>
+        <input type="date" id="tr_date" name="tr_date" value="{{ today_date }}" required><br>
+        <form id="transactionForm" onsubmit="event.preventDefault(); gatherDataAndSubmit();">
+            <table id="transactionTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Name</th>
+                        <th>Amount</th>
+                        <th>TrType</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>                
+                </tbody>
+            </table>        
+            <input type="submit" value="Submit">            
+        </form>
+        <button class="plus-button" onclick="showModal()">+</button>
+        <div id="accountModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <label for="accountSelect">Select Account:</label>
+            <select id="accountSelect">
+                <!-- Options will be populated dynamically -->
+            </select>
+            <select id="trType">
                 <option value="">Select Type</option>
                 <option value="CR">Credit</option>
                 <option value="DR">Debit</option>
-            </select><br>
-            
-            <input type="submit" value="Add Transaction">
-        </form>
+            </select>
+            <button onclick="addNewRow()">OK</button>
+        </div>        
+    </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/datepicker/1.0.10/datepicker.min.js"></script>
+    <script src="{{ url_for('static', filename='js/datepicker.js') }}"></script>
     <script>
-        // Initialize date picker
+        function showModal() {
+            var trDatePick = document.getElementById("tr_date");
+            
+            const dp_month = ["", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            monthVal = trDatePick.value
+            console.log(monthVal.split('-')[1])
+            selected_month = dp_month[Number(monthVal.split('-')[1])]
+            console.log(selected_month)
+            fetch('/accounts?selected_month=' + encodeURIComponent(selected_month), {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'Fetch'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const select = document.getElementById('accountSelect');
+                    select.innerHTML = '';
+                    data.forEach(name => {
+                        const option = document.createElement('option');
+                        option.value = name;
+                        option.textContent = name;
+                        select.appendChild(option);
+                    });
+                    document.getElementById('accountModal').style.display = "block";
+                });
+        }
+        function closeModal() {
+            document.getElementById('accountModal').style.display = "none";
+        }
+        function addNewRow(){            
+            const selectedAccount = document.getElementById('accountSelect').value;
+            const trTypeValue = document.getElementById('trType').value;            
+            var tbody = document.querySelector('#transactionTable tbody');
+            var tr = document.createElement('tr');
+            var tdDate = document.createElement('td');
+            var tdName = document.createElement('td');
+            var tdAmount = document.createElement('td');
+            var tdTrType = document.createElement('td');
+            var tdRemark = document.createElement('td');
+
+            var today = new Date();
+            var year = String(today.getFullYear());
+            year = year.substring(year.length-2);
+
+            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+            let month = months[today.getMonth()];
+            
+            var day = ('0' + today.getDate()).slice(-2);
+
+            // Set the value attribute to today's date
+
+
+            tdDate.textContent = `${month}-${day}`;
+            tdName.textContent = selectedAccount;
+            tdAmount.textContent = 0;
+            tdAmount.contentEditable = true;
+            tdDate.contentEditable = true;
+            tdTrType.textContent = trTypeValue;
+            tdRemark.textContent = "";
+            tdRemark.contentEditable = true;
+            tdRemark.width = "150px";
+            tdDate.width = "150px"
+            
+            tr.appendChild(tdDate);
+            tr.appendChild(tdName);
+            tr.appendChild(tdAmount);
+            tr.appendChild(tdTrType);
+            tr.appendChild(tdRemark);
+            tbody.appendChild(tr);
+
+        }
+
+        function gatherDataAndSubmit() {
+            const tbody = document.querySelector('#transactionTable tbody');
+            const rows = tbody.querySelectorAll('tr');
+            const data = [];
+
+            
+
+            const trTable = document.getElementById('transactionTable');
+            const dateCol = [];
+            const accountCol = [];
+            const amountCol = [];
+            const trTypeCol = [];
+            const remarkCol = [];
+
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                dateCol.push(cells[0].innerText);
+                accountCol.push(cells[1].innerText);
+                amountCol.push(cells[2].innerText);
+                trTypeCol.push(cells[3].innerText);
+                remarkCol.push(cells[4].innerText);
+                
+            });
+
+            console.log(JSON.stringify(dateCol))
+            console.log(dateCol)
+
+            var formData = new FormData();
+            formData.append("dateCol", JSON.stringify(dateCol));
+            console.log("FormData to be sent:");
+            
+            formData.append("accountCol", JSON.stringify(accountCol));
+           
+            formData.append('amountCol', JSON.stringify(amountCol));
+            formData.append('trTypeCol', JSON.stringify(trTypeCol));
+            formData.append('remarkCol', JSON.stringify(remarkCol));
+            
+         
+            fetch('/add_transaction', {
+                method: 'POST',
+                body: formData
+            }).then(response => response.text())
+              .then(data => {
+                  document.getElementById('transContainer').innerHTML = data;
+              });
+        }
+
         const datepicker = new Datepicker(document.getElementById('tr_date'), {
             format: 'yyyy-mm-dd',
             autohide: true

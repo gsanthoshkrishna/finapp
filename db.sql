@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS transaction (
     tr_date DATE NOT NULL,
     account VARCHAR(30) NOT NULL,
     remarks VARCHAR(30),
+    amount flot(6,2),
     tr_type ENUM('CR', 'DR') NOT NULL
 );
 

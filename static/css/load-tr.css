@@ -1,0 +1,40 @@
+.container {
+    width: 80%;
+    margin: 0 auto;
+}
+
+table {
+    width: 50%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th a {
+    text-decoration: none;
+    color: #333;
+}
+
+.pagination {
+    margin-top: 20px;
+}
+
+.pagination a {
+    text-decoration: none;
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    color: #333;
+    margin-right: 5px;
+}
+
+.pagination span {
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    color: #333;
+    background-color: #f2f2f2;
+    margin-right: 5px;
+}
